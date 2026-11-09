@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="convai-worker.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+</Solution>
