@@ -1,4 +1,5 @@
 .env
 .dev.vars
+.dev.vars.*
 .vs/
 node_modules/

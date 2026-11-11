@@ -1,3 +1,44 @@
+import { neon } from "@neondatabase/serverless";
+
+async function hashPassword(password, salt) {
+    const encoder = new TextEncoder();
+
+    const passwordKey = await crypto.subtle.importKey(
+        "raw",
+        encoder.encode(password),
+        "PBKDF2",
+        false,
+        ["deriveBits"]
+    );
+
+    const hash = await crypto.subtle.deriveBits(
+        {
+            name: "PBKDF2",
+            salt: salt,
+            iterations: 600000,
+            hash: "SHA-256"
+        },
+        passwordKey,
+        256
+    );
+
+    return new Uint8Array(hash);
+}
+
+function compareHashes(hash1, hash2) {
+    if (hash1.length !== hash2.length) {
+        return false;
+    }
+
+    let difference = 0;
+
+    for (let i = 0; i < hash1.length; i++) {
+        difference |= hash1[i] ^ hash2[i];
+    }
+
+    return difference === 0;
+}
+
 export default {
     async fetch(request, env) {
         const corsHeaders = {
