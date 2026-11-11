@@ -43,7 +43,8 @@ export default {
     async fetch(request, env) {
         const corsHeaders = {
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
             "Content-Type": "application/json"
         };
 
@@ -53,17 +54,146 @@ export default {
             });
         }
 
-        if (request.method !== "GET") {
+        if (request.method !== "POST") {
             return new Response("Method not allowed", {
-                status: 405
+            status: 405,
+            headers: corsHeaders
             });
         }
 
-        const auth = request.headers.get("X-GUID");
+        // Read login data from request
+        let body;
 
-        if (auth !== env.SECRET_KEY) {
-            return new Response("Unauthorized", {
-                status: 401
+        try {
+            body = await request.json();
+        } catch {
+            return Response.json({
+                success: false,
+                message: "Invalid JSON"
+            }, {
+                status: 400,
+                headers: corsHeaders
+            });
+        }
+
+        // Validate request body
+        if (
+            body === null ||
+            typeof body !== "object" ||
+            Array.isArray(body)
+        ) {
+            return Response.json({
+                success: false,
+                message: "Invalid request body"
+            }, {
+                status: 400,
+                headers: corsHeaders
+            });
+        }
+
+        // Read login data
+        const { userId, password } = body;
+
+        // Validate input
+        if (
+            typeof userId !== "string" ||
+            typeof password !== "string" ||
+            userId.trim().length === 0 ||
+            password.length === 0
+        ) {
+            return Response.json({
+                success: false,
+                message: "User ID and password are required"
+            }, {
+                status: 400,
+                headers: corsHeaders
+            });
+        }
+
+        // Connect to NeonDB and find user
+        let users;
+
+        try {
+            const connectionString =
+                `postgresql://${encodeURIComponent(env.DB_USER)}:${encodeURIComponent(env.DB_PW)}` +
+                `@${env.DB_URL}:${env.DB_PORT}/${env.DB_MAINTENANCE}?sslmode=require`;
+
+            const sql = neon(connectionString);
+
+            users = await sql`
+                SELECT hashedpw, salt
+                FROM users
+                WHERE id = ${userId}
+                LIMIT 1
+            `;
+
+        } catch (error) {
+            console.error("Database error:", error);
+
+            return Response.json({
+                success: false,
+                message: "Database connection failed"
+            }, {
+                status: 500,
+                headers: corsHeaders
+            });
+        }
+
+        if (users.length === 0) {
+            return Response.json({
+                success: false,
+                message: "Invalid credentials"
+            }, {
+                status: 401,
+                headers: corsHeaders
+            });
+        }
+
+        // Verify password
+        let passwordIsValid;
+
+        try {
+            const storedHash = new Uint8Array(users[0].hashedpw);
+            const salt = new Uint8Array(users[0].salt);
+
+            const calculatedHash = await hashPassword(password, salt);
+
+            passwordIsValid = compareHashes(
+                calculatedHash,
+                storedHash
+            );
+
+        } catch (error) {
+            console.error("Password verification error:", error);
+
+            return Response.json({
+                success: false,
+                message: "Authentication failed"
+            }, {
+                status: 500,
+                headers: corsHeaders
+            });
+        }
+
+        // Reject invalid password
+        if (!passwordIsValid) {
+            return Response.json({
+                success: false,
+                message: "Invalid credentials"
+            }, {
+                status: 401,
+                headers: corsHeaders
+            });
+        }
+
+        // Reject invalid password
+        if (!passwordIsValid) {
+            return Response.json({
+                success: false,
+                message: "Invalid credentials"
+            }, {
+                status: 401,
+                headers: corsHeaders
             });
         }
 
