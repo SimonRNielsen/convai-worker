@@ -39,6 +39,52 @@ function compareHashes(hash1, hash2) {
     return difference === 0;
 }
 
+
+async function getConvaiToken(env, corsHeaders) {
+    try {
+        const response = await fetch(env.URL, {
+            method: "POST",
+            headers: {
+                "CONVAI-API-KEY": env.CONVAI_API_KEY,
+                "Content-Type": "application/json"
+            },
+            body: "{}"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.apiAuthToken) {
+            return Response.json({
+                success: false,
+                message: "Could not retrieve Convai token"
+            }, {
+                status: 502,
+                headers: corsHeaders
+            });
+        }
+
+        return Response.json({
+            success: true,
+            apiAuthToken: data.apiAuthToken,
+            expirationTime: data.expirationTime
+        }, {
+            headers: corsHeaders
+        });
+
+    } catch (error) {
+        console.error("Convai error:", error);
+
+        return Response.json({
+            success: false,
+            message: "Internal server error"
+        }, {
+            status: 500,
+            headers: corsHeaders
+        });
+    }
+}
+
+
 export default {
     async fetch(request, env) {
         const corsHeaders = {
@@ -58,6 +104,24 @@ export default {
             return new Response("Method not allowed", {
             status: 405,
             headers: corsHeaders
+            });
+        }
+
+        const path = new URL(request.url).pathname;
+
+        // AATE VR: No login required
+        if (path === "/token") {
+            return getConvaiToken(env, corsHeaders);
+        }
+
+        // Main project: Login required
+        if (path !== "/auth/token") {
+            return Response.json({
+                success: false,
+                message: "Endpoint not found"
+            }, {
+                status: 404,
+                headers: corsHeaders
             });
         }
 
@@ -175,16 +239,7 @@ export default {
             });
         }
 
-        // Reject invalid password
-        if (!passwordIsValid) {
-            return Response.json({
-                success: false,
-                message: "Invalid credentials"
-            }, {
-                status: 401,
-                headers: corsHeaders
-            });
-        }
+       
 
         // Reject invalid password
         if (!passwordIsValid) {
@@ -197,44 +252,6 @@ export default {
             });
         }
 
-        try {
-            const response = await fetch(
-                env.URL,
-                {
-                    method: "POST",
-                    headers: {
-                        "CONVAI-API-KEY": env.CONVAI_API_KEY,
-                        "Content-Type": "application/json"
-                    },
-                    body: "{}"
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok || !data.apiAuthToken) {
-                return new Response(JSON.stringify({
-                    error: "Could not retrieve Convai token"
-                }), {
-                    status: 502,
-                    headers: corsHeaders
-                });
-            }
-
-            return new Response(JSON.stringify({
-                apiAuthToken: data.apiAuthToken,
-                expirationTime: data.expirationTime
-            }), {
-                headers: corsHeaders
-            });
-
-        } catch (error) {
-            return new Response(JSON.stringify({
-                error: "Internal server error"
-            }), {
-                status: 500,
-                headers: corsHeaders
-            });
-        }
+        return getConvaiToken(env, corsHeaders);
     }
 };
