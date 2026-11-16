@@ -189,13 +189,14 @@ export default {
             users = await sql`
                 SELECT hashedpw, salt
                 FROM users
-                WHERE id = ${userId}
+                WHERE userid = ${userId}
                 LIMIT 1
             `;
 
         } catch (error) {
-        console.error("Database error:", error.message);
-        console.error("Full error:", error);
+        console.error("Database error name:", error?.name);
+        console.error("Database error message:", error?.message);
+        console.error("Database error cause:", error?.cause);
 
         return Response.json({
             success: false,
@@ -204,7 +205,7 @@ export default {
             status: 500,
             headers: corsHeaders
         });
-    }
+        }
 
         if (users.length === 0) {
             return Response.json({

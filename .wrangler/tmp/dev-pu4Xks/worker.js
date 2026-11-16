@@ -5721,12 +5721,13 @@ var worker_default = {
       users = await sql`
                 SELECT hashedpw, salt
                 FROM users
-                WHERE id = ${userId}
+                WHERE userid = ${userId}
                 LIMIT 1
             `;
     } catch (error) {
-      console.error("Database error:", error.message);
-      console.error("Full error:", error);
+      console.error("Database error name:", error?.name);
+      console.error("Database error message:", error?.message);
+      console.error("Database error cause:", error?.cause);
       return Response.json({
         success: false,
         message: "Database connection failed"
