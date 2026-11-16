@@ -1,8 +1,8 @@
 
 const crypto = require("crypto");
 
-const userId = "aatevr1";
-const password = "12345";
+const userId = "aatevr1"; //UPDATE to new userid
+const password = "12345"; //UPDATE to new password
 
 // Generate a new random salt
 const salt = crypto.randomBytes(16);
@@ -16,6 +16,4 @@ const hash = crypto.pbkdf2Sync(
     "sha256"
 );
 
-console.log("User ID:", userId);
-console.log("New hash:", hash.toString("hex"));
-console.log("New salt:", salt.toString("hex"));
+

@@ -20,11 +20,6 @@ rl.question("User ID: ", (userId) => {
             "sha256"
         );
 
-        console.log("\n--- User data ---");
-        console.log("id:", userId);
-        console.log("hashedpw:", hash.toString("hex"));
-        console.log("salt:", salt.toString("hex"));
-
         rl.close();
     });
 });
