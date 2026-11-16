@@ -5593,7 +5593,7 @@ async function hashPassword(password, salt) {
     {
       name: "PBKDF2",
       salt,
-      iterations: 6e5,
+      iterations: 1e5,
       hash: "SHA-256"
     },
     passwordKey,
@@ -5829,7 +5829,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-sglKz9/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-pv9UzA/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -5861,7 +5861,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-sglKz9/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-pv9UzA/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

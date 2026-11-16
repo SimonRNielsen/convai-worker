@@ -11,7 +11,7 @@ const salt = crypto.randomBytes(16);
 const hash = crypto.pbkdf2Sync(
     password,
     salt,
-    600000,
+    100000,
     32,
     "sha256"
 );

@@ -15,7 +15,7 @@ rl.question("User ID: ", (userId) => {
         const hash = crypto.pbkdf2Sync(
             password,
             salt,
-            600000,
+            100000,
             32,
             "sha256"
         );
