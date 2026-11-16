@@ -157,7 +157,8 @@ export default {
         }
 
         // Read login data
-        const { userId, password } = body;
+        const userId = body.userId.trim();
+        const password = body.password;
 
         // Validate input
         if (
@@ -180,15 +181,7 @@ export default {
 
         try {
             const sql = neon(env.DB_COMPLETEURL);
-
-            const testSalt = new Uint8Array(
-            Buffer.from("d2b238d6c77a3b5636fc0f3347586e43", "hex")
-        );
-
-        const testHash = await hashPassword("TestPassword123!", testSalt);
-
-        console.log("CLOUDFLARE TEST HASH: " + Buffer.from(testHash).toString("hex"));
-
+        
             users = await sql`
                 SELECT hashedpw, salt
                 FROM users
@@ -197,16 +190,20 @@ export default {
             `;
 
         } catch (error) {
-       
+            console.error(
+                "Database error:",
+                error?.name,
+                error?.message
+            );
 
-        return Response.json({
-            success: false,
-            message: "Database connection failed"
-        }, {
-            status: 500,
-            headers: corsHeaders
-        });
-        }
+            return Response.json({
+                success: false,
+                message: "Database connection failed"
+            }, {
+                status: 500,
+                headers: corsHeaders
+            });
+            }
 
         if (users.length === 0) {
             return Response.json({
@@ -226,18 +223,6 @@ export default {
             const salt = new Uint8Array(users[0].salt);
 
             const calculatedHash = await hashPassword(password, salt);
-
-            console.log(
-            "HASH DEBUG:\n" +
-            "User ID: " + userId + "\n" +
-            "Stored hash: " + Buffer.from(storedHash).toString("hex") + "\n" +
-            "Calculated hash: " + Buffer.from(calculatedHash).toString("hex") + "\n" +
-            "Salt: " + Buffer.from(salt).toString("hex") + "\n" +
-            "Stored hash length: " + storedHash.length + "\n" +
-            "Calculated hash length: " + calculatedHash.length + "\n" +
-            "Salt length: " + salt.length + "\n" +
-            "Hashes match: " + compareHashes(calculatedHash, storedHash)
-            );
 
             passwordIsValid = compareHashes(
                 calculatedHash,
