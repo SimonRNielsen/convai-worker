@@ -5724,8 +5724,7 @@ var worker_default = {
                 WHERE userid = ${userId}
                 LIMIT 1
             `;
-      console.log("Received userId:", JSON.stringify(userId));
-      console.log("Number of users found:", users.length);
+      console.log("Received userId:", JSON.stringify(userId) + "Number of users found:", users.length);
     } catch (error) {
       console.error("Database error name:", error?.name);
       console.error("Database error message:", error?.message);
