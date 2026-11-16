@@ -198,6 +198,20 @@ export default {
                 LIMIT 1
             `;
 
+            console.log("User found:", users.length > 0);
+
+        if (users.length > 0) {
+            console.log("Hash type:", typeof users[0].hashedpw);
+            console.log("Hash is Buffer:", Buffer.isBuffer(users[0].hashedpw));
+            console.log("Hash is Uint8Array:", users[0].hashedpw instanceof Uint8Array);
+            console.log("Hash length:", users[0].hashedpw?.length);
+
+            console.log("Salt type:", typeof users[0].salt);
+            console.log("Salt is Buffer:", Buffer.isBuffer(users[0].salt));
+            console.log("Salt is Uint8Array:", users[0].salt instanceof Uint8Array);
+            console.log("Salt length:", users[0].salt?.length);
+        }
+
         } catch (error) {
         console.error("Database error name:", error?.name);
         console.error("Database error message:", error?.message);
