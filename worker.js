@@ -228,6 +228,18 @@ export default {
 
             const calculatedHash = await hashPassword(password, salt);
 
+            console.log(
+            "HASH DEBUG:\n" +
+            "User ID: " + userId + "\n" +
+            "Stored hash: " + Buffer.from(storedHash).toString("hex") + "\n" +
+            "Calculated hash: " + Buffer.from(calculatedHash).toString("hex") + "\n" +
+            "Salt: " + Buffer.from(salt).toString("hex") + "\n" +
+            "Stored hash length: " + storedHash.length + "\n" +
+            "Calculated hash length: " + calculatedHash.length + "\n" +
+            "Salt length: " + salt.length + "\n" +
+            "Hashes match: " + compareHashes(calculatedHash, storedHash)
+            );
+
             passwordIsValid = compareHashes(
                 calculatedHash,
                 storedHash

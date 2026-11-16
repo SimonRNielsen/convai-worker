@@ -5753,6 +5753,9 @@ var worker_default = {
       const storedHash = new Uint8Array(users[0].hashedpw);
       const salt = new Uint8Array(users[0].salt);
       const calculatedHash = await hashPassword(password, salt);
+      console.log(
+        "HASH DEBUG:\nUser ID: " + userId + "\nStored hash: " + Buffer.from(storedHash).toString("hex") + "\nCalculated hash: " + Buffer.from(calculatedHash).toString("hex") + "\nSalt: " + Buffer.from(salt).toString("hex") + "\nStored hash length: " + storedHash.length + "\nCalculated hash length: " + calculatedHash.length + "\nSalt length: " + salt.length + "\nHashes match: " + compareHashes(calculatedHash, storedHash)
+      );
       passwordIsValid = compareHashes(
         calculatedHash,
         storedHash
