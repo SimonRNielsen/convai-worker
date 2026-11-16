@@ -178,17 +178,6 @@ export default {
         let users;
 
         try {
-            /*const connectionString =
-                `postgresql://${encodeURIComponent(env.DB_USER)}:${encodeURIComponent(env.DB_PW)}` +
-                `@${env.DB_URL}:${env.DB_PORT}/${env.DB_MAINTENANCE}?sslmode=require`;
-
-            const sql = neon(connectionString);*/
-
-            
-            console.log("DB_COMPLETEURL exists:", !!env.DB_COMPLETEURL);
-            console.log("DB_COMPLETEURL starts with postgres:", 
-                env.DB_COMPLETEURL?.startsWith("postgresql://"));
-
             const sql = neon(env.DB_COMPLETEURL);
 
             users = await sql`
@@ -198,19 +187,8 @@ export default {
                 LIMIT 1
             `;
 
-            console.log("User found:", users.length > 0);
-
-        if (users.length > 0) {
-            console.log("Hash type:", typeof users[0].hashedpw);
-            console.log("Hash is Buffer:", Buffer.isBuffer(users[0].hashedpw));
-            console.log("Hash is Uint8Array:", users[0].hashedpw instanceof Uint8Array);
-            console.log("Hash length:", users[0].hashedpw?.length);
-
-            console.log("Salt type:", typeof users[0].salt);
-            console.log("Salt is Buffer:", Buffer.isBuffer(users[0].salt));
-            console.log("Salt is Uint8Array:", users[0].salt instanceof Uint8Array);
-            console.log("Salt length:", users[0].salt?.length);
-        }
+        console.log("Received userId:", JSON.stringify(userId));
+        console.log("Number of users found:", users.length);
 
         } catch (error) {
         console.error("Database error name:", error?.name);

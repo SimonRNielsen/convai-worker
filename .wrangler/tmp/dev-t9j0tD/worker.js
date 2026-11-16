@@ -5717,11 +5717,6 @@ var worker_default = {
     }
     let users;
     try {
-      console.log("DB_COMPLETEURL exists:", !!env.DB_COMPLETEURL);
-      console.log(
-        "DB_COMPLETEURL starts with postgres:",
-        env.DB_COMPLETEURL?.startsWith("postgresql://")
-      );
       const sql = ys(env.DB_COMPLETEURL);
       users = await sql`
                 SELECT hashedpw, salt
@@ -5729,17 +5724,8 @@ var worker_default = {
                 WHERE userid = ${userId}
                 LIMIT 1
             `;
-      console.log("User found:", users.length > 0);
-      if (users.length > 0) {
-        console.log("Hash type:", typeof users[0].hashedpw);
-        console.log("Hash is Buffer:", Buffer.isBuffer(users[0].hashedpw));
-        console.log("Hash is Uint8Array:", users[0].hashedpw instanceof Uint8Array);
-        console.log("Hash length:", users[0].hashedpw?.length);
-        console.log("Salt type:", typeof users[0].salt);
-        console.log("Salt is Buffer:", Buffer.isBuffer(users[0].salt));
-        console.log("Salt is Uint8Array:", users[0].salt instanceof Uint8Array);
-        console.log("Salt length:", users[0].salt?.length);
-      }
+      console.log("Received userId:", JSON.stringify(userId));
+      console.log("Number of users found:", users.length);
     } catch (error) {
       console.error("Database error name:", error?.name);
       console.error("Database error message:", error?.message);
