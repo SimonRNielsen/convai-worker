@@ -5717,6 +5717,11 @@ var worker_default = {
     }
     let users;
     try {
+      console.log("DB_COMPLETEURL exists:", !!env.DB_COMPLETEURL);
+      console.log(
+        "DB_COMPLETEURL starts with postgres:",
+        env.DB_COMPLETEURL?.startsWith("postgresql://")
+      );
       const sql = ys(env.DB_COMPLETEURL);
       users = await sql`
                 SELECT hashedpw, salt

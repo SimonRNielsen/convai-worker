@@ -184,6 +184,10 @@ export default {
 
             const sql = neon(connectionString);*/
 
+            console.log("DB_COMPLETEURL exists:", !!env.DB_COMPLETEURL);
+            console.log("DB_COMPLETEURL starts with postgres:", 
+                env.DB_COMPLETEURL?.startsWith("postgresql://"));
+
             const sql = neon(env.DB_COMPLETEURL);
 
             users = await sql`
