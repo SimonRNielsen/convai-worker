@@ -5602,6 +5602,14 @@ async function hashPassword(password, salt) {
   return new Uint8Array(hash);
 }
 __name(hashPassword, "hashPassword");
+var testPassword = "TestPassword123!";
+var testSalt = new Uint8Array(
+  Buffer.from("d2b238d6c77a3b5636fc0f3347586e43", "hex")
+);
+var testHash = await hashPassword(testPassword, testSalt);
+console.log(
+  "CLOUDFLARE TEST HASH: " + Buffer.from(testHash).toString("hex")
+);
 function compareHashes(hash1, hash2) {
   if (hash1.length !== hash2.length) {
     return false;
@@ -5724,12 +5732,6 @@ var worker_default = {
                 WHERE userid = ${userId}
                 LIMIT 1
             `;
-      console.log("Hash type:", typeof users[0].hashedpw);
-      console.log("Hash constructor:", users[0].hashedpw?.constructor?.name);
-      console.log("Hash length:", users[0].hashedpw?.length);
-      console.log("Salt type:", typeof users[0].salt);
-      console.log("Salt constructor:", users[0].salt?.constructor?.name);
-      console.log("Salt length:", users[0].salt?.length);
     } catch (error) {
       return Response.json({
         success: false,
