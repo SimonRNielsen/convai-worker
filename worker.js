@@ -184,13 +184,7 @@ export default {
 
             const sql = neon(connectionString);*/
 
-            console.log("Connection string exists:", !!env.DB_COMPLETEURL);
-console.log("Starts with postgresql://:",
-    env.DB_COMPLETEURL?.startsWith("postgresql://"));
-console.log("Contains @:",
-    env.DB_COMPLETEURL?.includes("@"));
-console.log("Contains / after host:",
-    env.DB_COMPLETEURL?.split("@")[1]?.includes("/"));
+            
             console.log("DB_COMPLETEURL exists:", !!env.DB_COMPLETEURL);
             console.log("DB_COMPLETEURL starts with postgres:", 
                 env.DB_COMPLETEURL?.startsWith("postgresql://"));
