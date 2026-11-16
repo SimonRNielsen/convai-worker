@@ -5717,8 +5717,7 @@ var worker_default = {
     }
     let users;
     try {
-      const connectionString = `postgresql://${encodeURIComponent(env.DB_USER)}:${encodeURIComponent(env.DB_PW)}@${env.DB_URL}:${env.DB_PORT}/${env.DB_MAINTENANCE}?sslmode=prefer`;
-      const sql = ys(connectionString);
+      const sql = ys(env.DB_COMPLETEURL);
       users = await sql`
                 SELECT hashedpw, salt
                 FROM users

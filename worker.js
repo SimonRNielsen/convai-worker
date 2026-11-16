@@ -178,11 +178,13 @@ export default {
         let users;
 
         try {
-            const connectionString =
+            /*const connectionString =
                 `postgresql://${encodeURIComponent(env.DB_USER)}:${encodeURIComponent(env.DB_PW)}` +
-                `@${env.DB_URL}:${env.DB_PORT}/${env.DB_MAINTENANCE}?sslmode=prefer`;
+                `@${env.DB_URL}:${env.DB_PORT}/${env.DB_MAINTENANCE}?sslmode=require`;
 
-            const sql = neon(connectionString);
+            const sql = neon(connectionString);*/
+
+            const sql = neon(env.DB_COMPLETEURL);
 
             users = await sql`
                 SELECT hashedpw, salt
