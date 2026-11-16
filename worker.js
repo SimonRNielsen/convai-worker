@@ -180,7 +180,7 @@ export default {
         try {
             const connectionString =
                 `postgresql://${encodeURIComponent(env.DB_USER)}:${encodeURIComponent(env.DB_PW)}` +
-                `@${env.DB_URL}:${env.DB_PORT}/${env.DB_MAINTENANCE}?sslmode=preferred`;
+                `@${env.DB_URL}:${env.DB_PORT}/${env.DB_MAINTENANCE}?sslmode=prefer`;
 
             const sql = neon(connectionString);
 
@@ -192,16 +192,17 @@ export default {
             `;
 
         } catch (error) {
-            console.error("Database error:", error);
+        console.error("Database error:", error.message);
+        console.error("Full error:", error);
 
-            return Response.json({
-                success: false,
-                message: "Database connection failed"
-            }, {
-                status: 500,
-                headers: corsHeaders
-            });
-        }
+        return Response.json({
+            success: false,
+            message: "Database connection failed"
+        }, {
+            status: 500,
+            headers: corsHeaders
+        });
+    }
 
         if (users.length === 0) {
             return Response.json({
