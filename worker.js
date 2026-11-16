@@ -187,18 +187,13 @@ export default {
                 LIMIT 1
             `;
 
-console.log("DATABASE BYTE CHECK:", {
-    hash: {
-        type: typeof users[0].hashedpw,
-        constructor: users[0].hashedpw?.constructor?.name,
-        length: users[0].hashedpw?.length
-    },
-    salt: {
-        type: typeof users[0].salt,
-        constructor: users[0].salt?.constructor?.name,
-        length: users[0].salt?.length
-    }
-});
+        console.log("Hash type:", typeof users[0].hashedpw);
+        console.log("Hash constructor:", users[0].hashedpw?.constructor?.name);
+        console.log("Hash length:", users[0].hashedpw?.length);
+
+        console.log("Salt type:", typeof users[0].salt);
+        console.log("Salt constructor:", users[0].salt?.constructor?.name);
+        console.log("Salt length:", users[0].salt?.length);
 
        
 
