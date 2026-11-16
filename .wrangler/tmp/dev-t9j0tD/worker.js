@@ -5602,14 +5602,6 @@ async function hashPassword(password, salt) {
   return new Uint8Array(hash);
 }
 __name(hashPassword, "hashPassword");
-var testPassword = "TestPassword123!";
-var testSalt = new Uint8Array(
-  Buffer.from("d2b238d6c77a3b5636fc0f3347586e43", "hex")
-);
-var testHash = await hashPassword(testPassword, testSalt);
-console.log(
-  "CLOUDFLARE TEST HASH: " + Buffer.from(testHash).toString("hex")
-);
 function compareHashes(hash1, hash2) {
   if (hash1.length !== hash2.length) {
     return false;
@@ -5726,6 +5718,11 @@ var worker_default = {
     let users;
     try {
       const sql = ys(env.DB_COMPLETEURL);
+      const testSalt = new Uint8Array(
+        Buffer.from("d2b238d6c77a3b5636fc0f3347586e43", "hex")
+      );
+      const testHash = await hashPassword("TestPassword123!", testSalt);
+      console.log("CLOUDFLARE TEST HASH: " + Buffer.from(testHash).toString("hex"));
       users = await sql`
                 SELECT hashedpw, salt
                 FROM users
