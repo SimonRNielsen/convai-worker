@@ -180,7 +180,7 @@ export default {
         try {
             const connectionString =
                 `postgresql://${encodeURIComponent(env.DB_USER)}:${encodeURIComponent(env.DB_PW)}` +
-                `@${env.DB_URL}:${env.DB_PORT}/${env.DB_MAINTENANCE}?sslmode=require`;
+                `@${env.DB_URL}:${env.DB_PORT}/${env.DB_MAINTENANCE}?sslmode=preferred`;
 
             const sql = neon(connectionString);
 
