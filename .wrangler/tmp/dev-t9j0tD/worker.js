@@ -5724,11 +5724,19 @@ var worker_default = {
                 WHERE userid = ${userId}
                 LIMIT 1
             `;
-      console.log("Received userId:", JSON.stringify(userId) + "Number of users found:", users.length);
+      console.log("DATABASE BYTE CHECK:", {
+        hash: {
+          type: typeof users[0].hashedpw,
+          constructor: users[0].hashedpw?.constructor?.name,
+          length: users[0].hashedpw?.length
+        },
+        salt: {
+          type: typeof users[0].salt,
+          constructor: users[0].salt?.constructor?.name,
+          length: users[0].salt?.length
+        }
+      });
     } catch (error) {
-      console.error("Database error name:", error?.name);
-      console.error("Database error message:", error?.message);
-      console.error("Database error cause:", error?.cause);
       return Response.json({
         success: false,
         message: "Database connection failed"
