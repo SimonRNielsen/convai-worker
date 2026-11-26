@@ -1,4 +1,15 @@
 import { neon } from "@neondatabase/serverless";
+import { evaluationProfiles } from "./EvaluationProfiles.js";
+
+function getEvaluationProfile(profileId) {
+    const profile = evaluationProfiles[profileId];
+
+    if (!profile || !profile.isActive) {
+        return null;
+    }
+
+    return profile;
+}
 
 async function hashPassword(password, salt) {
     const encoder = new TextEncoder();
@@ -54,6 +65,8 @@ async function getConvaiToken(env, corsHeaders) {
 
         const data = await response.json();
 
+        
+
         if (!response.ok || !data.apiAuthToken) {
             return Response.json({
                 success: false,
@@ -86,22 +99,145 @@ async function getConvaiToken(env, corsHeaders) {
 }
 
 
+
+async function evaluateConversation(env, corsHeaders, body) {
+
+    if (body === null || typeof body !== "object" || Array.isArray(body)) 
+    {
+        return Response.json({
+            success: false,
+            message: "Invalid request body"
+        }, {
+            status: 400,
+            headers: corsHeaders
+        });
+    }
+
+    const { session_id, character_id, evaluation_profile_id } = body;
+
+    // Validate required fields
+    if (
+        typeof session_id !== "string" ||
+        typeof character_id !== "string" ||
+        typeof evaluation_profile_id !== "string" ||
+        !session_id.trim() ||
+        !character_id.trim() ||
+        !evaluation_profile_id.trim()
+    ) {
+        return Response.json({
+            success: false,
+            message: "Missing or invalid evaluation data"
+        }, {
+            status: 400,
+            headers: corsHeaders
+        });
+    }
+
+    // Find evaluation profile
+    const profile = getEvaluationProfile(evaluation_profile_id);
+
+    if (!profile) {
+        return Response.json({
+            success: false,
+            message: "Evaluation profile not found or inactive"
+        }, {
+            status: 404,
+            headers: corsHeaders
+        });
+    }
+
+    try {
+        const response = await fetch(
+            "https://api.convai.com/character/evaluate_conversation",
+            {
+                method: "POST",
+                headers: {
+                    "CONVAI-API-KEY": env.CONVAI_API_KEY,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    session_id: session_id.trim(),
+                    character_id: character_id.trim(),
+                    prompt: profile.prompt,
+                    variables: {}
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error("Convai evaluation error:", response.status, data);
+
+            return Response.json({
+                success: false,
+                message: "Convai evaluation failed"
+            }, {
+                status: 502,
+                headers: corsHeaders
+            });
+        }
+
+        let parsedEvaluation;
+
+        try {
+            parsedEvaluation = JSON.parse(data.evaluation);
+        } catch {
+            console.error("Could not parse Convai evaluation:", data.evaluation);
+
+            return Response.json({
+                success: false,
+                message: "Invalid evaluation response from Convai"
+            }, {
+                status: 502,
+                headers: corsHeaders
+            });
+        }
+
+        return Response.json({
+            success: true,
+            evaluation_profile_id: profile.id,
+            evaluation_profile_version: profile.version,
+            evaluation: parsedEvaluation
+        }, {
+            headers: corsHeaders
+        });
+
+    } catch (error) {
+        console.error("Evaluation error:", error);
+
+        return Response.json(
+        {
+            success: false,
+            message: "Internal server error"
+        }, {
+            status: 500,
+            headers: corsHeaders
+        });
+    }
+}
+
+
+
 export default {
     async fetch(request, env) {
-        const corsHeaders = {
+        const corsHeaders = 
+        {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type",
             "Content-Type": "application/json"
         };
 
-        if (request.method === "OPTIONS") {
+        if (request.method === "OPTIONS") 
+        {
             return new Response(null, {
                 headers: corsHeaders
             });
         }
 
-        if (request.method !== "POST") {
+        if (request.method !== "POST") 
+        {
             return new Response("Method not allowed", {
             status: 405,
             headers: corsHeaders
@@ -111,12 +247,35 @@ export default {
         const path = new URL(request.url).pathname;
 
         // AATE VR: No login required
-        if (path === "/token") {
+        if (path === "/token") 
+        {
             return getConvaiToken(env, corsHeaders);
         }
 
+       
+        // AATE VR: Evaluation without login
+        if (path === "/evaluate") 
+        {
+            let body;
+
+            try {
+                body = await request.json();
+            } catch {
+                return Response.json({
+                    success: false,
+                    message: "Invalid JSON"
+                }, {
+                    status: 400,
+                    headers: corsHeaders
+                });
+            }
+
+            return evaluateConversation(env, corsHeaders, body);
+        }
+
         // Main project: Login required
-        if (path !== "/auth/token") {
+        if (path !== "/auth/token" && path !== "/auth/evaluate") 
+        {
             return Response.json({
                 success: false,
                 message: "Endpoint not found"
@@ -157,10 +316,9 @@ export default {
         }
 
         // Read login data
-        const userId = body.userId.trim();
+        const userId = body.userId;
         const password = body.password;
 
-        // Validate input
         if (
             typeof userId !== "string" ||
             typeof password !== "string" ||
@@ -176,6 +334,8 @@ export default {
             });
         }
 
+        const normalizedUserId = userId.trim();
+
         // Connect to NeonDB and find user
         let users;
 
@@ -185,7 +345,7 @@ export default {
             users = await sql`
                 SELECT hashedpw, salt
                 FROM users
-                WHERE userid = ${userId}
+                WHERE userid = ${normalizedUserId}
                 LIMIT 1
             `;
 
@@ -254,8 +414,14 @@ export default {
             });
         }
 
-        return getConvaiToken(env, corsHeaders);
-    }
+                // Return evaluation if requested
+        if (path === "/auth/evaluate") {
+            return evaluateConversation(env, corsHeaders, body);
+        }
 
-    
-};
+        // Otherwise return Convai token
+        return getConvaiToken(env, corsHeaders);
+            }
+
+            
+        };
